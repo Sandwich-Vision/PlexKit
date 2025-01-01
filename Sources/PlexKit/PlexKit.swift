@@ -12,7 +12,7 @@ import Foundation
 
 public final class Plex {
     private let sessionConfiguration: URLSessionConfiguration
-    lazy var session = URLSession(
+    private(set) lazy var session = URLSession(
         configuration: sessionConfiguration
     )
 
@@ -129,7 +129,9 @@ public extension Plex {
             device: String? = nil,
             deviceName: String? = nil,
             token: String? = nil,
-            sessionIdentifier: String? = nil
+            sessionIdentifier: String? = nil,
+            containerStart: String? = nil,
+            containerSize: String? = nil
         ) {
             self.clientIdentifier = clientIdentifier
             self.product = product
@@ -140,6 +142,8 @@ public extension Plex {
             self.deviceName = deviceName
             self.token = token
             self.sessionIdentifier = sessionIdentifier
+            self.containerStart = containerStart
+            self.containerSize = containerSize
         }
 
         /// Most requests require this key, so making it non-optional.
@@ -152,6 +156,8 @@ public extension Plex {
         public var deviceName: String?
         public var token: String?
         public var sessionIdentifier: String?
+        public var containerStart: String?
+        public var containerSize: String?
 
         public enum CodingKeys: String, CodingKey, CaseIterable {
             case clientIdentifier = "X-Plex-Client-Identifier"
@@ -163,9 +169,11 @@ public extension Plex {
             case deviceName = "X-Plex-Device-Name"
             case token = "X-Plex-Token"
             case sessionIdentifier = "X-Plex-Session-Identifier"
+            case containerStart = "X-Plex-Container-Start"
+            case containerSize = "X-Plex-Container-Size"
         }
 
-        func asMap() -> [CodingKeys: String] {
+        public func asMap() -> [CodingKeys: String] {
             let map: [CodingKeys: String?] = [
                 .clientIdentifier: clientIdentifier,
                 .product: product,
@@ -176,6 +184,8 @@ public extension Plex {
                 .deviceName: deviceName,
                 .token: token,
                 .sessionIdentifier: sessionIdentifier,
+                .containerStart: containerStart,
+                .containerSize: containerSize
             ]
             return map.compactMapValues { $0 }
         }
