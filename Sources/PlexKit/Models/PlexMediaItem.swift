@@ -147,10 +147,12 @@ public struct PlexMediaItem: PlexMediaItemType {
 
     /// Represents a video, audio, subtitle or lyric stream.
     public struct Stream: Codable, Hashable {
-        public let id: Int
-        private let streamType: Int
+        /// Plex leaves out `id`, and sometimes `codec`, on some tracks (seen on embedded
+        /// captions), so none of these may fail the whole item's decode.
+        public let id: Int?
+        private let streamType: Int?
         public let streamDefault: Bool?
-        public let codec: String
+        public let codec: String?
         public let index: Int?
         public let bitrate: Int?
         public let bitDepth: Int?
@@ -179,7 +181,7 @@ public struct PlexMediaItem: PlexMediaItemType {
         public let headerCompression: Bool?
 
         public var type: StreamType {
-            .init(rawValue: streamType)
+            .init(rawValue: streamType ?? 0)
         }
 
         public enum StreamType: Hashable {

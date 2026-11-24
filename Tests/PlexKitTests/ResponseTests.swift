@@ -752,18 +752,27 @@ extension ResponseTests {
     }
 
 
+    /// Plex leaves `id` and `codec` off some tracks; one such track mustn't sink the item.
+    func testItemMetadataWithStreamMissingID() throws {
+        let response = try loadResponse(
+            "item_metadata_with_idless_stream",
+            for: Plex.Request.ItemMetadata.self
+        )
+        let streams = response.mediaContainer.metadata[0].media[0].parts[0].streams
+
+        XCTAssertEqual(streams.count, 3)
+        XCTAssertNil(streams[2].id)
+        XCTAssertNil(streams[2].codec)
+        XCTAssertEqual(streams[2].type, .subtitle)
+    }
+
+    /// Invalid UTF-8 is replaced, not fatal: one bad title mustn't hide the item.
     func testItemMetadataWithBrokenEncoding() throws {
-        do {
-            _ = try loadResponse(
-                "item_metadata_with_broken_encoding",
-                for: Plex.Request.ItemMetadata.self
-            )
-            XCTFail("No error thrown")
-        } catch DecodingError.dataCorrupted {
-            // Ok.
-        } catch {
-            XCTFail("Unexpected error thrown: \(error)")
-        }
+        let response = try loadResponse(
+            "item_metadata_with_broken_encoding",
+            for: Plex.Request.ItemMetadata.self
+        )
+        XCTAssertFalse(response.mediaContainer.metadata.isEmpty)
     }
 }
 
